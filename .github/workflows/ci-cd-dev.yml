@@ -57,23 +57,23 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      # - name: Output Vars
-      #   env:
-      #     VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'dataService') }}
-      #     LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     OWNER: ${{ github.repository_owner }}
-      #     REPO_NAME: ${{ github.event.repository.name }}
-      #     PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
-      #   run: |
-      #     echo "$VALUE"
-      #     echo "$LABELS"
-      #     echo "$OWNER $REPO_NAME $PULL_REQUEST_NUMBER"
-      #     gh api -H "Accept: application/vnd.github+json" repos/$OWNER/$REPO_NAME/issues/38/labels | jq '[.[].name]' > /tmp/label_list
-      #     while IFS= read -r line
-      #     do
-      #       echo "$line"
-      #     done < /tmp/label_list
+      - name: Output Vars
+        env:
+          VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'dataService') }}
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "$VALUE"
+          echo "$LABELS"
+          echo "$OWNER $REPO_NAME $PULL_REQUEST_NUMBER"
+          # gh api -H "Accept: application/vnd.github+json" repos/$OWNER/$REPO_NAME/issues/38/labels | jq '[.[].name]' > /tmp/label_list
+          # while IFS= read -r line
+          # do
+          #   echo "$line"
+          # done < /tmp/label_list
 
       - name: filter
         uses: dorny/paths-filter@v2
