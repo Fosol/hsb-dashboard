@@ -36,6 +36,7 @@ on:
       - dev
       - main
       - test
+      - 235
 
 jobs:
   build-push:
