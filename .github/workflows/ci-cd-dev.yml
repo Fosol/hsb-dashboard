@@ -30,11 +30,12 @@ on:
       - closed
       - edited
       - opened
-  # push:
-  #   branches:
-  #     - dev
-  #     - main
-  #     - test
+      - reopened
+  push:
+    branches:
+      - dev
+      - main
+      - test
 
 jobs:
   build-push:
