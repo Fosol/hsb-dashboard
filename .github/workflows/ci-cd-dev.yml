@@ -66,8 +66,10 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
           PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          echo "$VALUE - $LABELS"
-          gh api -H "Accept: application/vnd.github+json" /repos/$OWNER/$REPO_NAME/issues/$PULL_REQUEST_NUMBER/labels | jq '[.[].name]' > /tmp/label_list
+          echo "$VALUE"
+          echo "$LABELS"
+          echo "$OWNER $REPO_NAME $PULL_REQUEST_NUMBER"
+          gh api -H "Accept: application/vnd.github+json" repos/$OWNER/$REPO_NAME/issues/$PULL_REQUEST_NUMBER/labels | jq '[.[].name]' > /tmp/label_list
           while IFS= read -r line
           do
             echo "$line"
