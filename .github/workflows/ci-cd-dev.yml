@@ -60,8 +60,10 @@ jobs:
       - name: Output Vars
         env:
           VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'dataService') }}
-          LABELS: ${{ github.event.pull_request.labels }}
-        run: echo "$VALUE - ${LABELS[*]}"
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          echo "$VALUE - $LABELS"
+          gh api -H "Accept: application/vnd.github+json" /repos/fosol/hsb_dashboard/issues/${{ github.event.pull_request.number }}/labels | jq '[.[].name]' > /tmp/label_list
 
       - name: filter
         uses: dorny/paths-filter@v2
