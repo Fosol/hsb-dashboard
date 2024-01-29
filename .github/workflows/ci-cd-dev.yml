@@ -69,7 +69,7 @@ jobs:
           echo "$VALUE"
           echo "$LABELS"
           echo "$OWNER $REPO_NAME $PULL_REQUEST_NUMBER"
-          gh api -H "Accept: application/vnd.github+json" repos/$OWNER/$REPO_NAME/issues/$PULL_REQUEST_NUMBER/labels | jq '[.[].name]' > /tmp/label_list
+          gh api -H "Accept: application/vnd.github+json" repos/$OWNER/$REPO_NAME/issues/38/labels | jq '[.[].name]' > /tmp/label_list
           while IFS= read -r line
           do
             echo "$line"
