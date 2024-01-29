@@ -28,11 +28,15 @@ on:
       - main
     types:
       - closed
-  # push:
-  #   branches:
-  #     - dev
-  #     - main
-  #     - test
+      - edited
+      - opened
+      - reopened
+  push:
+    branches:
+      - dev
+      - main
+      - test
+      - 235
 
 jobs:
   build-push:
@@ -53,6 +57,24 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      # - name: Output Vars
+      #   env:
+      #     VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'dataService') }}
+      #     LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     OWNER: ${{ github.repository_owner }}
+      #     REPO_NAME: ${{ github.event.repository.name }}
+      #     PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+      #   run: |
+      #     echo "$VALUE"
+      #     echo "$LABELS"
+      #     echo "$OWNER $REPO_NAME $PULL_REQUEST_NUMBER"
+      #     gh api -H "Accept: application/vnd.github+json" repos/$OWNER/$REPO_NAME/issues/38/labels | jq '[.[].name]' > /tmp/label_list
+      #     while IFS= read -r line
+      #     do
+      #       echo "$line"
+      #     done < /tmp/label_list
+
       - name: filter
         uses: dorny/paths-filter@v2
         id: filter
@@ -60,6 +82,9 @@ jobs:
           filters: |
             api:
               - 'src/api/**'
+              - 'src/libs/**'
+            data-service:
+              - 'src/data-service/**'
               - 'src/libs/**'
             dashboard:
               - 'src/dashboard/**'
@@ -70,7 +95,7 @@ jobs:
       - name: Build API
         id: build-api
         uses: redhat-actions/buildah-build@v2
-        if: steps.filter.outputs.api == 'true'
+        if: ${{ steps.filter.outputs.api == 'true' || contains(github.event.pull_request.labels.*.name, 'api') }}
         with:
           image: ${{ github.event.repository.name }}/${{ env.API_IMAGE_NAME }}
           tags: ${{ env.IMAGE_TAG }} ${{ env.VERSION }} ${{ env.DEPLOY_TO }}
@@ -81,7 +106,7 @@ jobs:
       - name: Build Data Service
         id: build-data-service
         uses: redhat-actions/buildah-build@v2
-        if: steps.filter.outputs.data-service == 'true'
+        if: ${{ steps.filter.outputs.data-service == 'true' || contains(github.event.pull_request.labels.*.name, 'dataService') }}
         with:
           image: ${{ github.event.repository.name }}/${{ env.DATA_SERVICE_IMAGE_NAME }}
           tags: ${{ env.IMAGE_TAG }} ${{ env.VERSION }} ${{ env.DEPLOY_TO }}
@@ -92,7 +117,7 @@ jobs:
       - name: Build Dasbhoard
         id: build-app
         uses: redhat-actions/buildah-build@v2
-        if: steps.filter.outputs.dashboard == 'true'
+        if: ${{ steps.filter.outputs.dashboard == 'true' || contains(github.event.pull_request.labels.*.name, 'dashboard') }}
         with:
           image: ${{ github.event.repository.name }}/${{ env.APP_IMAGE_NAME }}
           tags: ${{ env.IMAGE_TAG }} ${{ env.VERSION }} ${{ env.DEPLOY_TO }}
@@ -103,7 +128,7 @@ jobs:
       - name: Build DB Migration
         id: build-db-migration
         uses: redhat-actions/buildah-build@v2
-        if: steps.filter.outputs.db-migration == 'true'
+        if: ${{ steps.filter.outputs.db-migration == 'true' || contains(github.event.pull_request.labels.*.name, 'db-migration') }}
         with:
           image: ${{ github.event.repository.name }}/${{ env.DB_MIGRATION_IMAGE_NAME }}
           tags: ${{ env.IMAGE_TAG }} ${{ env.VERSION }} ${{ env.DEPLOY_TO }}
@@ -114,7 +139,7 @@ jobs:
         ## PUSH TO REGISTRY
       - name: Push API to registry
         uses: redhat-actions/push-to-registry@v2
-        if: steps.filter.outputs.api == 'true'
+        if: ${{ steps.filter.outputs.api == 'true' || contains(github.event.pull_request.labels.*.name, 'api')  }}
         with:
           image: ${{ steps.build-api.outputs.image }}
           tags: ${{ steps.build-api.outputs.tags }}
@@ -124,7 +149,7 @@ jobs:
 
       - name: Push Data Service to registry
         uses: redhat-actions/push-to-registry@v2
-        if: steps.filter.outputs.data-service == 'true'
+        if: ${{ steps.filter.outputs.data-service == 'true' || contains(github.event.pull_request.labels.*.name, 'dataService')  }}
         with:
           image: ${{ steps.build-data-service.outputs.image }}
           tags: ${{ steps.build-data-service.outputs.tags }}
@@ -134,7 +159,7 @@ jobs:
 
       - name: Push Dashboard to registry
         uses: redhat-actions/push-to-registry@v2
-        if: steps.filter.outputs.dashboard == 'true'
+        if: ${{ steps.filter.outputs.dashboard == 'true' || contains(github.event.pull_request.labels.*.name, 'dashboard')  }}
         with:
           image: ${{ steps.build-app.outputs.image }}
           tags: ${{ steps.build-app.outputs.tags }}
@@ -144,7 +169,7 @@ jobs:
 
       - name: Push DB Migration to registry
         uses: redhat-actions/push-to-registry@v2
-        if: steps.filter.outputs.db-migration == 'true'
+        if: ${{ steps.filter.outputs.db-migration == 'true' || contains(github.event.pull_request.labels.*.name, 'db-migration')  }}
         with:
           image: ${{ steps.build-db-migration.outputs.image }}
           tags: ${{ steps.build-db-migration.outputs.tags }}
