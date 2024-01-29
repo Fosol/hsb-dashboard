@@ -57,6 +57,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Output Vars
+        env:
+          VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'data-service') }}
+          LABELS: ${{ github.event.pull_request.labels.*.name }}
+        run: echo "$VALUE - $LABELS"
+
       - name: filter
         uses: dorny/paths-filter@v2
         id: filter
