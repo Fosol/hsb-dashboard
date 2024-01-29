@@ -60,7 +60,7 @@ jobs:
       - name: Output Vars
         env:
           VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'data-service') }}
-          LABELS: ${{ github.event.pull_request.labels.*.name }}
+          LABELS: ${{ github.event.pull_request.labels.*.name[*] }}
         run: echo "$VALUE - $LABELS"
 
       - name: filter
