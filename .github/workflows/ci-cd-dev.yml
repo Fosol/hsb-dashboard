@@ -59,8 +59,8 @@ jobs:
 
       - name: Output Vars
         env:
-          VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'data-service') }}
-          LABELS: "test"
+          VALUE: ${{ contains(github.event.pull_request.labels.*.name, 'dataService') }}
+          LABELS: ${{ github.event.pull_request.labels }}
         run: echo "$VALUE - ${LABELS[*]}"
 
       - name: filter
@@ -94,7 +94,7 @@ jobs:
       - name: Build Data Service
         id: build-data-service
         uses: redhat-actions/buildah-build@v2
-        if: ${{ steps.filter.outputs.data-service == 'true' || contains(github.event.pull_request.labels.*.name, 'data-service') }}
+        if: ${{ steps.filter.outputs.data-service == 'true' || contains(github.event.pull_request.labels.*.name, 'dataService') }}
         with:
           image: ${{ github.event.repository.name }}/${{ env.DATA_SERVICE_IMAGE_NAME }}
           tags: ${{ env.IMAGE_TAG }} ${{ env.VERSION }} ${{ env.DEPLOY_TO }}
@@ -137,7 +137,7 @@ jobs:
 
       - name: Push Data Service to registry
         uses: redhat-actions/push-to-registry@v2
-        if: ${{ steps.filter.outputs.data-service == 'true' || contains(github.event.pull_request.labels.*.name, 'data-service')  }}
+        if: ${{ steps.filter.outputs.data-service == 'true' || contains(github.event.pull_request.labels.*.name, 'dataService')  }}
         with:
           image: ${{ steps.build-data-service.outputs.image }}
           tags: ${{ steps.build-data-service.outputs.tags }}
